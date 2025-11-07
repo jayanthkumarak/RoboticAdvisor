@@ -9,7 +9,13 @@ import { ThinkingProcess, ThinkingStep } from '@/components/ai/ThinkingProcess'
 import { RichReport, ReportSection } from '@/components/ai/RichReport'
 import { Intention } from '@/components/ai/IntentionCard'
 import { getIntelligentSuggestions } from '@/lib/nlp/matcher'
-import { handleRetirementOptimization, handlePortfolioProjection } from '@/lib/engine/adapters/intentionHandlers'
+import { 
+  handleRetirementOptimization, 
+  handlePortfolioProjection,
+  handleMonteCarloRetirement,
+  handleGoalFunding,
+  handleRebalancing
+} from '@/lib/engine/adapters/intentionHandlers'
 
 export default function DashboardPage() {
   const { isDarkMode, profile, retirementPlan } = useFinancialStore()
@@ -50,15 +56,34 @@ export default function DashboardPage() {
     setIsProcessing(true)
     setShowReport(false)
 
-    // Call real engine based on intention
+    // Route to appropriate engine handler
     let result
     
-    if (intention.id.includes('retirement') || intention.id === 'optimize-retirement-success') {
+    if (intention.id === 'optimize-retirement-success' || intention.id.includes('early-retirement')) {
+      result = await handleMonteCarloRetirement(profile, retirementPlan)
+    } else if (intention.id.includes('retirement')) {
       result = await handleRetirementOptimization(profile, retirementPlan)
-    } else if (intention.id.includes('projection') || intention.id === 'monte-carlo-projection') {
+    } else if (intention.id === 'monte-carlo-projection') {
+      result = await handleMonteCarloRetirement(profile, retirementPlan)
+    } else if (intention.id.includes('projection')) {
       result = await handlePortfolioProjection(profile, retirementPlan)
+    } else if (intention.id.includes('goal') || intention.id === 'allocate-budget-goals') {
+      // Mock goals data - will come from store in production
+      const mockGoals = [
+        { id: '1', name: 'Child Education', targetAmount: 5000000, targetYear: 2034, priority: 'high' as const },
+        { id: '2', name: 'House Purchase', targetAmount: 8000000, targetYear: 2030, priority: 'high' as const },
+        { id: '3', name: 'Vacation Fund', targetAmount: 500000, targetYear: 2027, priority: 'low' as const }
+      ]
+      result = await handleGoalFunding(mockGoals, 50000)
+    } else if (intention.id.includes('rebalance')) {
+      // Mock portfolio holdings - will come from store in production
+      const mockHoldings = {
+        'equity-nifty50': 3500000,  // 70%
+        'debt-govt-10y': 1500000    // 30%
+      }
+      result = await handleRebalancing(mockHoldings, { 'equity-nifty50': 70, 'debt-govt-10y': 30 })
     } else {
-      // Fallback for not-yet-implemented intentions
+      // Default fallback
       result = await handleRetirementOptimization(profile, retirementPlan)
     }
     

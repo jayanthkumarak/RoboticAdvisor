@@ -1,0 +1,21 @@
+name = "roboadvisor"
+compatibility_date = "2024-01-01"
+
+# Cloudflare Pages configuration
+pages_build_output_dir = "out"
+
+# Optional: Environment variables
+# [env.production.vars]
+# API_URL = "https://api.roboadvisor.com"
+
+# Optional: D1 Database binding (for future use)
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "roboadvisor-db"
+# database_id = "your-database-id"
+
+# Optional: Durable Objects (for future use)
+# [[durable_objects.bindings]]
+# name = "FINANCIAL_PLAN"
+# class_name = "FinancialPlanDO"
+# script_name = "roboadvisor"
